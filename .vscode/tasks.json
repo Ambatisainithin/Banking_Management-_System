@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "01: Backend - Spring Boot (MySQL, port 8080)",
+      "type": "shell",
+      "command": "pwsh",
+      "options": {
+        "cwd": "${workspaceFolder}/banking-system"
+      },
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "$ErrorActionPreference='Stop'; $jdk=(Get-ChildItem 'C:\\Program Files\\Eclipse Adoptium' -Directory | Where-Object Name -like 'jdk-17*' | Select-Object -First 1 -ExpandProperty FullName); if ($jdk) { $env:JAVA_HOME=$jdk; $env:Path=\"$env:JAVA_HOME\\bin;$env:Path\" }; Remove-Item Env:SPRING_PROFILES_ACTIVE -ErrorAction SilentlyContinue; Remove-Item Env:PORT -ErrorAction SilentlyContinue; ./mvnw.cmd -DskipTests spring-boot:run -Dspring-boot.run.jvmArguments=\"-Dserver.port=8080\""
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "02: Frontend - Angular dev server (http://localhost:4200)",
+      "type": "shell",
+      "command": "pwsh",
+      "options": {
+        "cwd": "${workspaceFolder}/banking-frontend"
+      },
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "if (!(Test-Path node_modules)) { npm install }; npm start"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "00: DB - Seed MySQL (one-time)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "& 'C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe' -u root -prps@123 -e \"SOURCE '${workspaceFolder}/banking-system/setup_data.sql';\""
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+<div class="account-detail-container">
+  <button class="btn btn-back" (click)="goBack()">← Back to Accounts</button>
+
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading account details...
+  </div>
+
+  <div *ngIf="!loading && account" class="account-card">
+    <div class="account-header">
+      <div>
+        <h1>Account Details</h1>
+        <p class="account-number">{{ account.accountNumber }}</p>
+      </div>
+      <span class="badge" [ngClass]="{
+        'badge-savings': account.accountType === 'SAVINGS',
+        'badge-current': account.accountType === 'CURRENT'
+      }">
+        {{ account.accountType }}
+      </span>
+    </div>
+
+    <div class="account-info">
+      <div class="info-row">
+        <span class="label">Customer Name:</span>
+        <span class="value">{{ account?.customer?.name || 'N/A' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Email:</span>
+        <span class="value">{{ account?.customer?.email || 'N/A' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Phone:</span>
+        <span class="value">{{ account?.customer?.phone || 'N/A' }}</span>
+      </div>
+    </div>
+
+    <div class="balance-section">
+      <span class="balance-label">Current Balance</span>
+      <span class="balance-amount">{{ account.balance | currency }}</span>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-success" (click)="goToDeposit()">💵 Deposit</button>
+      <button class="btn btn-warning" (click)="goToWithdraw()">💸 Withdraw</button>
+      <button class="btn btn-info" (click)="goToEdit()">✏️ Edit</button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && account" class="transactions-section">
+    <h2>Recent Transactions</h2>
+    
+    <div *ngIf="transactions.length === 0" class="empty-state">
+      <p>No transactions found for this account.</p>
+    </div>
+
+    <table *ngIf="transactions.length > 0" class="data-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Mode</th>
+          <th>Description</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let txn of transactions">
+          <td>{{ txn.transactionDate | date:'mediumDate' }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-deposit': txn.transactionType === 'DEPOSIT',
+              'badge-withdraw': txn.transactionType === 'WITHDRAWAL'
+            }">
+              {{ txn.transactionType }}
+            </span>
+          </td>
+          <td>{{ txn.transactionMode || '-' }}</td>
+          <td class="description-cell">{{ txn.description || '-' }}</td>
+          <td [ngClass]="{
+            'amount-positive': txn.transactionType === 'DEPOSIT',
+            'amount-negative': txn.transactionType === 'WITHDRAWAL'
+          }">
+            {{ txn.transactionType === 'DEPOSIT' ? '+' : '-' }}{{ txn.amount | currency }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

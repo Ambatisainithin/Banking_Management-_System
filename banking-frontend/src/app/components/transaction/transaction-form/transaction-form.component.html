@@ -1,0 +1,82 @@
+<div class="form-container">
+  <button class="btn btn-back" (click)="goBack()">← Back to Account</button>
+
+  <div *ngIf="loadingAccount" class="loading">
+    Loading account details...
+  </div>
+
+  <!-- Show error if loading failed -->
+  <div *ngIf="!loadingAccount && !account && error" class="alert alert-error" style="margin-top: 20px;">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loadingAccount && account" class="form-card">
+    <div class="transaction-header" [ngClass]="{'deposit': transactionType === 'deposit', 'withdraw': transactionType === 'withdraw'}">
+      <span class="icon">{{ transactionType === 'deposit' ? '💵' : '💸' }}</span>
+      <h1>{{ transactionType === 'deposit' ? 'Deposit' : 'Withdraw' }} Funds</h1>
+    </div>
+
+    <div class="account-summary">
+      <div class="summary-row">
+        <span class="label">Account:</span>
+        <span class="value">{{ account.accountNumber }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Current Balance:</span>
+        <span class="value balance">{{ account.balance | currency }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="error" class="alert alert-error">
+      {{ error }}
+    </div>
+
+    <div *ngIf="success" class="alert alert-success">
+      {{ success }}
+    </div>
+
+    <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="amount">Amount *</label>
+        <div class="input-wrapper">
+          <span class="currency-symbol">$</span>
+          <input
+            type="number"
+            id="amount"
+            formControlName="amount"
+            placeholder="Enter amount"
+            min="0.01"
+            step="0.01"
+            style="font-size: 1.2rem; padding: 12px;"
+          />
+        </div>
+        <div class="error-message" *ngIf="transactionForm.get('amount')?.touched && transactionForm.get('amount')?.invalid">
+          <span *ngIf="transactionForm.get('amount')?.errors?.['required']">Amount is required.</span>
+          <span *ngIf="transactionForm.get('amount')?.errors?.['min']">Amount must be greater than zero.</span>
+          <span *ngIf="transactionForm.get('amount')?.errors?.['max']">Amount cannot exceed current balance ({{ account?.balance | currency }}).</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description (Optional)</label>
+        <input
+          type="text"
+          id="description"
+          formControlName="description"
+          placeholder="e.g., Salary deposit, Cash withdrawal"
+        />
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="goBack()">Cancel</button>
+        <button 
+          type="submit" 
+          class="btn" 
+          [ngClass]="{'btn-deposit': transactionType === 'deposit', 'btn-withdraw': transactionType === 'withdraw'}"
+          [disabled]="loading || transactionForm.invalid">
+          {{ loading ? 'Processing...' : (transactionType === 'deposit' ? 'Deposit' : 'Withdraw') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,222 @@
+<div class="customer-dashboard">
+  <div class="welcome-header">
+    <div class="welcome-text">
+      <h1>Welcome back, {{ customerName }}!</h1>
+      <p class="subtitle">Manage your accounts and transactions with Best Bank</p>
+    </div>
+    <div class="bank-badge">
+      <div class="badge-icon">BB</div>
+      <span>BEST BANK</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    Loading your accounts...
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error" class="dashboard-content">
+    
+    <!-- Account Summary Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💳</div>
+        <div class="stat-info">
+          <h3>{{ accounts.length }}</h3>
+          <p>My Accounts</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+          <h3>{{ getTotalBalance() | currency }}</h3>
+          <p>Total Balance</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+          <h3>{{ transactions.length }}</h3>
+          <p>Transactions</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Accounts Section -->
+    <div class="section accounts-section">
+      <h2>My Accounts</h2>
+      <div class="accounts-list">
+        <div 
+          *ngFor="let account of accounts" 
+          class="account-card" 
+          [class.selected]="selectedAccount?.accountId === account.accountId"
+          (click)="selectAccount(account)">
+          <div class="account-header">
+            <span class="account-number">{{ account.accountNumber }}</span>
+            <span class="account-type">{{ account.accountType }}</span>
+          </div>
+          <div class="account-balance">
+            {{ account.balance | currency }}
+          </div>
+          <div class="account-status" [class.active]="account.status === 'ACTIVE'">
+            {{ account.status }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected Account Details -->
+    <div *ngIf="selectedAccount" class="section account-details-section">
+      <h2>Account Details</h2>
+      <div class="details-card">
+        <div class="detail-row">
+          <span class="label">Account Number:</span>
+          <span class="value">{{ selectedAccount.accountNumber }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Account Type:</span>
+          <span class="value">{{ selectedAccount.accountType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Current Balance:</span>
+          <span class="value balance">{{ selectedAccount.balance | currency }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Status:</span>
+          <span class="value status" [class.active]="selectedAccount.status === 'ACTIVE'">
+            {{ selectedAccount.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="btn btn-primary" (click)="openTransferForm()">
+          💸 Fund Transfer
+        </button>
+      </div>
+    </div>
+
+    <!-- Fund Transfer Modal -->
+    <div *ngIf="showTransferForm" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Fund Transfer</h2>
+          <button class="close-btn" (click)="closeTransferForm()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <!-- Success State with Checkmark -->
+          <div *ngIf="transferSuccess" class="transfer-success">
+            <div class="success-icon">✓</div>
+            <h3>Transfer Successful!</h3>
+            <p>{{ transferMessage }}</p>
+            <button class="btn btn-primary" (click)="closeTransferForm()">Done</button>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="transferError && !transferSuccess" class="alert alert-error">
+            {{ transferError }}
+          </div>
+
+          <div *ngIf="!transferSuccess" class="transfer-form-content">
+          <div class="form-group">
+            <label>From Account</label>
+            <input type="text" [value]="selectedAccount?.accountNumber" disabled />
+          </div>
+
+          <div class="form-group">
+            <label>Available Balance</label>
+            <input type="text" [value]="selectedAccount?.balance | currency" disabled />
+          </div>
+
+          <div class="form-group">
+            <label for="toAccount">To Account Number / ID</label>
+            <input 
+              type="text" 
+              id="toAccount" 
+              [(ngModel)]="transferToAccount" 
+              placeholder="Enter destination account number or ID"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="amount">Amount</label>
+            <input 
+              type="number" 
+              id="amount" 
+              [(ngModel)]="transferAmount" 
+              placeholder="Enter amount"
+              min="1"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Enter Password to Confirm</label>
+            <input 
+              type="password" 
+              id="password" 
+              [(ngModel)]="transferPassword" 
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn btn-secondary" (click)="closeTransferForm()">Cancel</button>
+            <button class="btn btn-primary" (click)="submitTransfer()" [disabled]="transferLoading">
+              {{ transferLoading ? 'Processing...' : 'Transfer' }}
+            </button>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div *ngIf="selectedAccount" class="section transactions-section">
+      <h2>Transaction History</h2>
+      <div *ngIf="transactions.length === 0" class="no-data">
+        No transactions found for this account.
+      </div>
+      <div *ngIf="transactions.length > 0" class="transactions-table-container">
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let txn of transactions">
+              <td>{{ txn.transactionId }}</td>
+              <td>
+                <span class="txn-type" [ngClass]="txn.transactionType.toLowerCase()">
+                  {{ txn.transactionType }}
+                </span>
+              </td>
+              <td [class.credit]="txn.transactionType === 'DEPOSIT'" 
+                  [class.debit]="txn.transactionType !== 'DEPOSIT'">
+                {{ txn.transactionType === 'DEPOSIT' ? '+' : '-' }}{{ txn.amount | currency }}
+              </td>
+              <td>
+                <span class="status-badge" [class.success]="txn.status === 'SUCCESS'">
+                  {{ txn.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

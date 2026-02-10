@@ -1,0 +1,50 @@
+<div class="account-list-container">
+  <div class="header">
+    <h1>Bank Accounts</h1>
+    <button class="btn btn-primary" (click)="createAccount()">+ New Account</button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading accounts...
+  </div>
+
+  <div *ngIf="!loading && accounts.length === 0" class="empty-state">
+    <p>No accounts found. Create your first account!</p>
+  </div>
+
+  <table *ngIf="!loading && accounts.length > 0" class="data-table">
+    <thead>
+      <tr>
+        <th>Account Number</th>
+        <th>Account Type</th>
+        <th>Customer Name</th>
+        <th>Balance</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let account of accounts">
+        <td>{{ account.accountNumber }}</td>
+        <td>
+          <span class="badge" [ngClass]="{
+            'badge-savings': account.accountType === 'SAVINGS',
+            'badge-current': account.accountType === 'CURRENT'
+          }">
+            {{ account.accountType }}
+          </span>
+        </td>
+        <td>{{ account.customer?.name || 'N/A' }}</td>
+        <td class="balance">{{ account.balance | currency }}</td>
+        <td class="actions">
+          <button class="btn btn-sm btn-info" (click)="viewAccount(account.accountId)">View</button>
+          <button class="btn btn-sm btn-warning" (click)="editAccount(account.accountId)">Edit</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteAccount(account.accountId)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

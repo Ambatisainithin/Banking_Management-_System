@@ -1,0 +1,39 @@
+<div class="dashboard">
+  <h1>Welcome to Banking Management System</h1>
+  <p class="subtitle">Manage customer accounts and transactions efficiently</p>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-info">
+        <h3>{{ totalCustomers }}</h3>
+        <p>Total Customers</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💳</div>
+      <div class="stat-info">
+        <h3>{{ totalAccounts }}</h3>
+        <p>Total Accounts</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-info">
+        <h3>{{ totalBalance | currency }}</h3>
+        <p>Total Balance</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="action-buttons">
+      <a routerLink="/accounts/new" class="btn btn-primary">Create New Account</a>
+      <a routerLink="/accounts" class="btn btn-secondary">View All Accounts</a>
+      <a routerLink="/customers" class="btn btn-secondary">View All Customers</a>
+    </div>
+  </div>
+</div>

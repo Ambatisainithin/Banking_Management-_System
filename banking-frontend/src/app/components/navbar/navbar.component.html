@@ -1,0 +1,33 @@
+<nav class="navbar" *ngIf="authService.isLoggedIn()">
+  <div class="navbar-brand">
+    <a routerLink="/">
+      <div class="brand-logo">
+        <div class="logo-icon">BB</div>
+        <div class="logo-text">
+          <span class="bank-name">BEST BANK</span>
+          <span class="bank-tagline">Your Trusted Partner</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  <ul class="navbar-menu">
+    <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"><i class="icon">🏠</i> Dashboard</a></li>
+    <!-- Admin Only Menu Items -->
+    <ng-container *ngIf="authService.getUserType() === 'ADMIN'">
+      <li><a routerLink="/accounts" routerLinkActive="active"><i class="icon">💳</i> Accounts</a></li>
+      <li><a routerLink="/customers" routerLinkActive="active"><i class="icon">👥</i> Customers</a></li>
+    </ng-container>
+  </ul>
+  <div class="navbar-user">
+    <div class="user-info">
+      <div class="user-avatar">{{ authService.getUserName()?.charAt(0) }}</div>
+      <div class="user-details">
+        <span class="user-name">{{ authService.getUserName() }}</span>
+        <span class="user-role">{{ authService.getUserType() }}</span>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">
+      <span>Logout</span>
+    </button>
+  </div>
+</nav>
