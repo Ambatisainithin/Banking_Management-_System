@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read #This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
@@ -24,41 +24,35 @@ jobs:
           java-version: '17'
           distribution: 'microsoft'
 
-      
-      - name: Grant execute permission for mvnw
-        working-directory: banking-system
-        run: chmod +x mvnw
-
       - name: Build with Maven
-        working-directory: banking-system
-        run: ./mvnw clean install -DskipTests
+        run: mvn clean install
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: '${{ github.workspace }}/banking-system/target/*.jar'
+          path: '${{ github.workspace }}/target/*.jar'
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write
-      contents: read
-
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+  
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: java-app
-          path: .
-
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_62F58F8CE0D94AE9AB7D67CB131752F4 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C1B8608CFB9C4800BB645DA5347455D0 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6FD99C8DFE3243DFB42746F59FC16238 }}
 
-      
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -66,3 +60,4 @@ jobs:
           app-name: 'banking-system-application'
           slot-name: 'Production'
           package: '*.jar'
+          
